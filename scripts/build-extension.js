@@ -33,14 +33,18 @@ console.log('✅ Copied dist/ → chrome-extension/app/');
 const iconsDir = join(extDir, 'icons');
 if (!existsSync(iconsDir)) {
     mkdirSync(iconsDir, { recursive: true });
-    // Copy from tauri icons as fallback
-    const tauriIcons = join(root, 'src-tauri', 'icons');
-    if (existsSync(join(tauriIcons, '32x32.png'))) {
-        cpSync(join(tauriIcons, '32x32.png'), join(iconsDir, 'icon32.png'));
-        cpSync(join(tauriIcons, '128x128.png'), join(iconsDir, 'icon128.png'));
-        cpSync(join(tauriIcons, '32x32.png'), join(iconsDir, 'icon16.png'));
-        cpSync(join(tauriIcons, '32x32.png'), join(iconsDir, 'icon48.png'));
-        console.log('✅ Copied icons from src-tauri/icons/');
+    // Copy from public/ favicons as source
+    const publicDir = join(root, 'public');
+    const favicon32 = join(publicDir, 'favicon-32.png');
+    const favicon192 = join(publicDir, 'favicon-192.png');
+    if (existsSync(favicon32)) {
+        cpSync(favicon32, join(iconsDir, 'icon16.png'));
+        cpSync(favicon32, join(iconsDir, 'icon32.png'));
+        cpSync(favicon32, join(iconsDir, 'icon48.png'));
+        if (existsSync(favicon192)) {
+            cpSync(favicon192, join(iconsDir, 'icon128.png'));
+        }
+        console.log('✅ Copied icons from public/ favicons');
     } else {
         console.warn('⚠️ No icons found. Add icons manually to chrome-extension/icons/');
     }
