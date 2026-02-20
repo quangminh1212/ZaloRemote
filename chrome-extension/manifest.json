@@ -1,0 +1,28 @@
+{
+    "manifest_version": 3,
+    "name": "ZaSync - Zalo Remote Control",
+    "version": "1.0.0",
+    "description": "Remote control Zalo Web across multiple devices via ZaSync Server",
+    "permissions": [],
+    "action": {
+        "default_title": "ZaSync",
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "32": "icons/icon32.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        }
+    },
+    "icons": {
+        "16": "icons/icon16.png",
+        "32": "icons/icon32.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'; connect-src ws: wss: http: https:; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com"
+    }
+}
