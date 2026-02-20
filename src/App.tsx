@@ -9,7 +9,11 @@ import ClientsView from './components/ClientsView';
 import SettingsView from './components/SettingsView';
 import ToastContainer from './components/ToastContainer';
 import socketService from './services/socketService';
-import './styles/index.css';
+import './styles/base.css';
+import './styles/layout.css';
+import './styles/login.css';
+import './styles/views.css';
+import './styles/responsive.css';
 
 function RemoteLayout() {
   const { activeTab, setActiveTab, connection, role, partnerId, partnerPassword } = useStore();
