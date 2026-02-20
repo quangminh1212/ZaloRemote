@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Monitor, Smartphone, ArrowRight, Loader2, KeyRound, Lock, Sun, Moon, ChevronDown, Check, Copy, Globe, Download } from 'lucide-react';
+import { Monitor, Smartphone, ArrowRight, Loader2, KeyRound, Lock, Sun, Moon, ChevronDown, Check, Copy, Globe, Download, Link2 } from 'lucide-react';
 import useStore from '../store/useStore';
 import socketService from '../services/socketService';
 import { useTranslation, Locale, LOCALE_META, flagUrl } from '../i18n';
@@ -48,7 +48,11 @@ export default function LoginPage() {
     const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
     // Client form state
-    const serverUrl = `ws://${window.location.host}`;
+    const [serverUrl, setServerUrl] = useState(() => {
+        // Restore from sessionStorage if available
+        const saved = sessionStorage.getItem('zalohub_server_url');
+        return saved || '';
+    });
     const [partnerId, setPartnerId] = useState('');
     const [partnerPwd, setPartnerPwd] = useState('');
     const [showTos, setShowTos] = useState(false);
@@ -159,9 +163,11 @@ export default function LoginPage() {
     // ---- Client: Connect via ID + Password ----
     const handleClientConnect = async () => {
         if (!serverUrl.trim()) {
-            addToast('error', t('setup.serverRequired'));
+            addToast('error', t('setup.serverRequired') || 'Vui lòng nhập link chia sẻ từ ZaloHub');
             return;
         }
+        // Save server URL for next session
+        sessionStorage.setItem('zalohub_server_url', serverUrl.trim());
         const cleanId = partnerId.replace(/[-\s]/g, '');
         if (!cleanId) {
             addToast('error', t('setup.idRequired'));
@@ -180,10 +186,15 @@ export default function LoginPage() {
             email: '',
         });
         setRole('client');
-        setConnection({ serverUrl: serverUrl.trim() });
+        // Normalize URL: ensure ws:// or wss:// prefix
+        let wsUrl = serverUrl.trim();
+        if (wsUrl.startsWith('https://')) wsUrl = wsUrl.replace('https://', 'wss://');
+        else if (wsUrl.startsWith('http://')) wsUrl = wsUrl.replace('http://', 'ws://');
+        else if (!wsUrl.startsWith('ws://') && !wsUrl.startsWith('wss://')) wsUrl = `wss://${wsUrl}`;
+        setConnection({ serverUrl: wsUrl });
 
         const success = await socketService.connect(
-            serverUrl.trim(),
+            wsUrl,
             'client',
             cleanId,
             partnerPwd.trim()
@@ -288,8 +299,8 @@ export default function LoginPage() {
 
                         <div className="guide-content">
                             <div className="guide-step"><div className="step-number">1</div><div className="step-text"><strong>Tải &amp; chạy ZaloHub</strong><p>Tải <a href="https://github.com/quangminh1212/release/releases/tag/zalohub-v1.0.2" target="_blank" rel="noopener noreferrer">ZaloHub</a> về PC, chạy và đăng nhập Zalo</p></div></div>
-                            <div className="guide-step"><div className="step-number">2</div><div className="step-text"><strong>Lấy ID &amp; mật khẩu</strong><p>App sẽ hiện <strong>ID</strong> và <strong>mật khẩu</strong> — gửi cho người cần điều khiển</p></div></div>
-                            <div className="guide-step"><div className="step-number">3</div><div className="step-text"><strong>Kết nối</strong><p>Nhập ID và mật khẩu vào form bên phải, nhấn <strong>Kết nối</strong></p></div></div>
+                            <div className="guide-step"><div className="step-number">2</div><div className="step-text"><strong>Lấy thông tin kết nối</strong><p>Nhấn <strong>Chia sẻ</strong> trên ZaloHub để lấy <strong>Link</strong>, <strong>ID</strong> và <strong>mật khẩu</strong></p></div></div>
+                            <div className="guide-step"><div className="step-number">3</div><div className="step-text"><strong>Kết nối</strong><p>Dán link, nhập ID và mật khẩu vào form bên phải, nhấn <strong>Kết nối</strong></p></div></div>
                         </div>
 
                         <div className="login-features split-features">
@@ -305,6 +316,13 @@ export default function LoginPage() {
                         <h2 className="split-form-title">{t('setup.connect')}</h2>
                         <p className="split-form-subtitle">{t('login.clientRoleDesc')}</p>
                         <div className="login-form">
+                            <div className="form-group">
+                                <label>{t('setup.serverUrl') || 'Link chia sẻ'}</label>
+                                <div className="input-with-icon">
+                                    <Link2 size={18} />
+                                    <input type="text" placeholder="https://xxx.trycloudflare.com" value={serverUrl} onChange={(e) => setServerUrl(e.target.value)} onKeyDown={handleKeyDown} className="code-input" />
+                                </div>
+                            </div>
                             <div className="form-group">
                                 <label>{t('setup.partnerId')}</label>
                                 <div className="input-with-icon">
