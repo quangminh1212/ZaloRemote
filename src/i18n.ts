@@ -49,6 +49,7 @@ const K = [
     'login.tosAgree', 'login.tos', 'login.tunnelHint',
     'login.downloadDesc', 'login.downloadBtn', 'login.downloadNote',
     'login.serverDesc', 'setup.shareLink', 'setup.copied',
+    'socket.serverUnreachable',
 ] as const;
 
 
@@ -88,6 +89,7 @@ const V: Record<Locale, string[]> = {
         'Dán URL Tunnel từ ứng dụng Server',
         'Tải app ZaloHub Server để biến máy tính thành server điều khiển Zalo từ xa', 'Tải về và kết nối', 'Hỗ trợ Windows x64 · Portable · Không cần cài đặt',
         'Máy này đang chạy Zalo. Chia sẻ mã truy cập để người khác điều khiển từ xa.', 'Link chia sẻ', 'Đã sao chép!',
+        'Server không phản hồi. Vui lòng kiểm tra lại đường dẫn hoặc tunnel đã hết hạn.',
     ],
     en: [
         'ZaloHub', 'Zalo App Remoting Platform', 'Remote control Zalo across multiple devices',
@@ -124,6 +126,7 @@ const V: Record<Locale, string[]> = {
         'Paste the Tunnel URL from server app',
         'Download ZaloHub Server app to turn your PC into a remote Zalo server', 'Download & Connect', 'Windows x64 · Portable · No installation required',
         'This machine is running Zalo. Share the access code for remote control.', 'Share Link', 'Copied!',
+        'Server not responding. Please check the URL or the tunnel may have expired.',
     ],
     zh: [
         'ZaloHub', 'Zalo远程控制平台', '跨多台设备远程控制Zalo',
@@ -160,6 +163,7 @@ const V: Record<Locale, string[]> = {
         '粘贴服务器应用的隧道URL',
         '下载ZaloHub服务器应用，将电脑变为远程Zalo服务器', '下载ZaloHub服务器', 'Windows x64 · 便携版 · 无需安装',
         '此机器正在运行Zalo。分享访问代码以进行远程控制。', '分享链接', '已复制！',
+        '服务器无响应。请检查URL或隧道是否已过期。',
     ],
     ja: [
         'ZaloHub', 'Zaloリモートプラットフォーム', '複数デバイスでZaloをリモート操作',
@@ -196,6 +200,7 @@ const V: Record<Locale, string[]> = {
         'サーバーアプリからトンネルURLを貼り付け',
         'ZaloHubサーバーアプリをダウンロードして、PCをリモートZaloサーバーに', 'ZaloHubサーバーをダウンロード', 'Windows x64 · ポータブル · インストール不要',
         'このマシンでZaloが実行中です。アクセスコードを共有してリモート操作を許可します。', '共有リンク', 'コピー済み！',
+        'サーバーが応答しません。URLを確認するか、トンネルの有効期限が切れている可能性があります。',
     ],
     ko: [
         'ZaloHub', 'Zalo 원격 제어 플랫폼', '여러 기기에서 Zalo 원격 제어',
@@ -232,6 +237,7 @@ const V: Record<Locale, string[]> = {
         '서버 앱에서 터널 URL을 붙여넣으세요',
         'ZaloHub 서버 앱을 다운로드하여 PC를 원격 Zalo 서버로 전환', 'ZaloHub 서버 다운로드', 'Windows x64 · 포터블 · 설치 불필요',
         '이 컴퓨터에서 Zalo가 실행 중입니다. 원격 제어를 위해 접근 코드를 공유하세요.', '공유 링크', '복사됨!',
+        '서버가 응답하지 않습니다. URL을 확인하거나 터널이 만료되었을 수 있습니다.',
     ],
     fr: [
         'ZaloHub', 'Plateforme de contrôle à distance Zalo', 'Contrôlez Zalo à distance sur plusieurs appareils',
@@ -268,6 +274,7 @@ const V: Record<Locale, string[]> = {
         'Collez l\'URL du tunnel depuis l\'application serveur',
         'Téléchargez l\'app ZaloHub Server pour transformer votre PC en serveur Zalo', 'Télécharger ZaloHub Server', 'Windows x64 · Portable · Sans installation',
         'Cette machine exécute Zalo. Partagez le code d\'accès pour le contrôle à distance.', 'Lien de partage', 'Copié !',
+        'Serveur ne répond pas. Vérifiez l\'URL ou le tunnel a peut-être expiré.',
     ],
     es: [
         'ZaloHub', 'Plataforma de control remoto Zalo', 'Controla Zalo remotamente en múltiples dispositivos',
@@ -304,6 +311,7 @@ const V: Record<Locale, string[]> = {
         'Pegue la URL del túnel desde la aplicación del servidor',
         'Descarga la app ZaloHub Server para convertir tu PC en un servidor Zalo', 'Descargar ZaloHub Server', 'Windows x64 · Portable · Sin instalación',
         'Esta máquina ejecuta Zalo. Comparta el código de acceso para control remoto.', 'Enlace para compartir', '¡Copiado!',
+        'El servidor no responde. Verifique la URL o el túnel puede haber expirado.',
     ],
     de: [
         'ZaloHub', 'Zalo-Fernsteuerungsplattform', 'Zalo über mehrere Geräte fernsteuern',
@@ -340,6 +348,7 @@ const V: Record<Locale, string[]> = {
         'Tunnel-URL aus der Server-App einfügen',
         'Laden Sie die ZaloHub Server App herunter, um Ihren PC zum Zalo-Server zu machen', 'ZaloHub Server herunterladen', 'Windows x64 · Portable · Keine Installation nötig',
         'Dieser Rechner führt Zalo aus. Teilen Sie den Zugangscode für die Fernsteuerung.', 'Freigabelink', 'Kopiert!',
+        'Server antwortet nicht. Überprüfen Sie die URL oder der Tunnel ist möglicherweise abgelaufen.',
     ],
     ru: [
         'ZaloHub', 'Платформа удалённого управления Zalo', 'Удалённое управление Zalo на нескольких устройствах',
@@ -376,6 +385,7 @@ const V: Record<Locale, string[]> = {
         'Вставьте URL туннеля из серверного приложения',
         'Загрузите приложение ZaloHub Server, чтобы превратить ПК в сервер Zalo', 'Скачать ZaloHub Server', 'Windows x64 · Портативная · Установка не требуется',
         'На этом компьютере запущен Zalo. Поделитесь кодом доступа для удалённого управления.', 'Ссылка для общего доступа', 'Скопировано!',
+        'Сервер не отвечает. Проверьте URL или туннель мог истечь.',
     ],
     th: [
         'ZaloHub', 'แพลตฟอร์มควบคุม Zalo ระยะไกล', 'ควบคุม Zalo ระยะไกลบนหลายอุปกรณ์',
@@ -412,6 +422,7 @@ const V: Record<Locale, string[]> = {
         'วาง URL อุโมงค์จากแอปเซิร์ฟเวอร์',
         'ดาวน์โหลดแอป ZaloHub Server เพื่อเปลี่ยน PC เป็นเซิร์ฟเวอร์ Zalo ระยะไกล', 'ดาวน์โหลด ZaloHub Server', 'Windows x64 · พกพา · ไม่ต้องติดตั้ง',
         'เครื่องนี้กำลังรัน Zalo แชร์รหัสเข้าถึงเพื่อควบคุมระยะไกล', 'ลิงก์แชร์', 'คัดลอกแล้ว!',
+        'เซิร์ฟเวอร์ไม่ตอบสนอง กรุณาตรวจสอบ URL หรืออุโมงค์อาจหมดอายุ',
     ],
 };
 
