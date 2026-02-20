@@ -1,13 +1,13 @@
 # ZaloRemote
 
-**ZaloRemote** là web client cho phép điều khiển Zalo từ xa qua trình duyệt, hosted trên Vercel.
+**ZaloRemote** là client cho phép điều khiển Zalo từ xa, tích hợp trong ZaloHub hoặc chạy qua trình duyệt.
 
 ## Tính năng
-- 🌐 Giao diện web React + TypeScript hiện đại
+- 🌐 Giao diện React + TypeScript hiện đại
 - 📱 Remote viewer - xem và điều khiển Zalo từ xa
 - 🔐 Đăng nhập bảo mật bằng Google hoặc Access Code
 - 👥 Quản lý nhiều phiên kết nối
-- 🌍 Đa ngôn ngữ (Việt, Anh, Nhật, Hàn, Trung)
+- 🌍 Đa ngôn ngữ (Việt, Anh, Nhật, Hàn, Trung, Pháp, Tây Ban Nha, Đức, Nga, Thái)
 - 🔌 Chrome Extension hỗ trợ
 
 ## Cấu trúc
@@ -32,7 +32,6 @@ ZaloRemote/
 ├── chrome-extension/     # Chrome extension
 ├── index.html            # Entry point
 ├── vite.config.ts        # Vite config
-├── vercel.json           # Vercel deployment config
 └── package.json
 ```
 
@@ -50,9 +49,6 @@ npm run build
 # Build Chrome Extension
 npm run build:extension
 ```
-
-## Deploy
-Dự án được deploy tự động lên Vercel.
 
 ## Liên quan
 - **[ZaloHub](https://github.com/quangminh1212/ZaloHub)** - Desktop app Windows chạy Zalo server và tạo tunnel để ZaloRemote kết nối tới

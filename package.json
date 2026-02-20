@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.2",
   "type": "module",
-  "description": "ZaloRemote - Web client for remote Zalo control, hosted on Vercel",
+  "description": "ZaloRemote - Desktop client for remote Zalo control",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
