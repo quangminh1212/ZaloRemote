@@ -791,24 +791,34 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: var(--sp-6);
-  height: 34px;
-  padding: 0 var(--sp-10);
-  background: transparent;
-  border: none;
-  border-radius: var(--r-8);
-  color: var(--text-tertiary);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.2px;
+  height: 36px;
+  padding: 0 var(--sp-16);
+  background: linear-gradient(135deg, #0068ff, #0050cc);
+  border: 1px solid rgba(100, 170, 255, 0.35);
+  border-radius: var(--r-full);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
   text-decoration: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   white-space: nowrap;
+  box-shadow: 0 0 12px rgba(0, 104, 255, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: downloadPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes downloadPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(0, 104, 255, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(0, 104, 255, 0.55), 0 2px 12px rgba(0, 0, 0, 0.25); }
 }
 
 .top-download-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--accent);
+  background: linear-gradient(135deg, #1a7aff, #0060e6);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 0 24px rgba(0, 104, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: none;
 }
 
 .login-toolbar-group {
