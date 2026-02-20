@@ -1,0 +1,194 @@
+/* ============================================
+   ZaloHub v1.0 — Zalo App Remoting Platform
+   Dark/Light Theme · Glassmorphism · Premium
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Design Tokens — Inspired by ZaloHub Logo */
+:root {
+  /* Primary: Blue (from logo) */
+  --zalo-blue: #3B82F6;
+  --zalo-blue-hover: #2563EB;
+  --zalo-blue-light: #374151;
+  --zalo-blue-bg: #1f2937;
+
+  /* Logo accent colors */
+  --logo-green: #22C55E;
+  --logo-amber: #F59E0B;
+  --logo-red: #EF4444;
+  --logo-blue: #3B82F6;
+
+  /* Gradient accent (logo-inspired) */
+  --gradient-logo: linear-gradient(135deg, #22C55E 0%, #3B82F6 35%, #F59E0B 70%, #EF4444 100%);
+  --gradient-accent: linear-gradient(135deg, #3B82F6, #22C55E);
+  --gradient-warm: linear-gradient(135deg, #F59E0B, #EF4444);
+  --gradient-subtle: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(34, 197, 94, 0.15));
+
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+  --accent: #00c896;
+
+  /* Dark mode (gray tones) — DEFAULT */
+  --bg-app: #111111;
+  --bg-sidebar: #161616;
+  --bg-panel: #1a1a1a;
+  --bg-card: #222222;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-active: rgba(59, 130, 246, 0.15);
+  --bg-input: #222222;
+
+  --text-primary: #edf2f7;
+  --text-secondary: #9ca3af;
+  --text-tertiary: #6b7280;
+  --text-white: #FFFFFF;
+  --text-link: #60a5fa;
+
+  --border-light: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.1);
+
+  --glass-bg: rgba(22, 22, 22, 0.92);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  --login-bg: linear-gradient(135deg, #111111 0%, #1a1a1a 50%, #141414 100%);
+  --login-glow-1: rgba(34, 197, 94, 0.1);
+  --login-glow-2: rgba(239, 68, 68, 0.07);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  --sp-2: 2px;
+  --sp-4: 4px;
+  --sp-6: 6px;
+  --sp-8: 8px;
+  --sp-10: 10px;
+  --sp-12: 12px;
+  --sp-16: 16px;
+  --sp-20: 20px;
+  --sp-24: 24px;
+  --sp-32: 32px;
+
+  --r-4: 4px;
+  --r-6: 6px;
+  --r-8: 8px;
+  --r-12: 12px;
+  --r-16: 16px;
+  --r-full: 9999px;
+
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --nav-width: 64px;
+  --header-h: 52px;
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+[data-theme="light"] {
+  --bg-app: #f5f5f5;
+  --bg-sidebar: #ffffff;
+  --bg-panel: #ffffff;
+  --bg-card: #f0f0f0;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(59, 130, 246, 0.1);
+  --bg-input: #f0f0f0;
+
+  --text-primary: #1a1a1a;
+  --text-secondary: #4b5563;
+  --text-tertiary: #9ca3af;
+  --text-white: #1a1a1a;
+  --text-link: #2563EB;
+
+  --border-light: rgba(0, 0, 0, 0.08);
+  --border-default: rgba(0, 0, 0, 0.12);
+
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  --login-bg: linear-gradient(135deg, #f0f0f0 0%, #ffffff 50%, #f5f5f5 100%);
+  --login-glow-1: rgba(34, 197, 94, 0.08);
+  --login-glow-2: rgba(239, 68, 68, 0.05);
+  --accent: #059669;
+}
+
+/* ============================================
+   Reset & Base
+   ============================================ */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-app);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+}
+
+input,
+textarea {
+  font-family: inherit;
+  border: none;
+  outline: none;
+  background: none;
+  color: var(--text-primary);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--r-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   App Layout
+   ============================================ */
+.app-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg-app);
+  position: relative;
+}
