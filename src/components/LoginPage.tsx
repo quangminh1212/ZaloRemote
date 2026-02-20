@@ -320,7 +320,7 @@ export default function LoginPage() {
                                 <label>{t('setup.serverUrl') || 'Link chia sẻ'}</label>
                                 <div className="input-with-icon">
                                     <Link2 size={18} />
-                                    <input type="text" placeholder="https://xxx.trycloudflare.com" value={serverUrl} onChange={(e) => setServerUrl(e.target.value)} onKeyDown={handleKeyDown} className="code-input" />
+                                    <input type="text" placeholder="https://xxx.trycloudflare.com" value={serverUrl} onChange={(e) => setServerUrl(e.target.value)} onKeyDown={handleKeyDown} />
                                 </div>
                             </div>
                             <div className="form-group">
