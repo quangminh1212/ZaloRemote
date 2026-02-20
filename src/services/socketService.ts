@@ -10,25 +10,50 @@ class SocketService {
     private currentAccessCode: string = '';
     private currentPassword: string = '';
 
-    connect(serverUrl: string, role: string = 'client', partnerId?: string, password?: string): Promise<boolean> {
+    async connect(serverUrl: string, role: string = 'client', partnerId?: string, password?: string): Promise<boolean> {
         this.currentRole = role;
         this.currentAccessCode = partnerId || '';
         this.currentPassword = password || '';
-        return new Promise((resolve) => {
-            const store = useStore.getState();
-            store.setConnection({ connecting: true });
 
-            // Cleanup existing connection
-            if (this.socket) {
-                this.socket.removeAllListeners();
-                this.socket.disconnect();
+        const store = useStore.getState();
+        store.setConnection({ connecting: true });
+
+        // Cleanup existing connection
+        if (this.socket) {
+            this.socket.removeAllListeners();
+            this.socket.disconnect();
+        }
+
+        // Normalize URL: Socket.IO io() accepts http/https URLs
+        let connectUrl = serverUrl.replace(/\/$/, '');
+        if (connectUrl.startsWith('wss://')) connectUrl = connectUrl.replace('wss://', 'https://');
+        else if (connectUrl.startsWith('ws://')) connectUrl = connectUrl.replace('ws://', 'http://');
+        console.log('[Socket] Connecting to:', connectUrl);
+
+        // Pre-flight check: verify server is reachable before attempting Socket.IO
+        try {
+            const healthUrl = `${connectUrl}/api/health`;
+            console.log('[Socket] Pre-flight check:', healthUrl);
+            const healthRes = await fetch(healthUrl, { signal: AbortSignal.timeout(8000) });
+            if (!healthRes.ok) {
+                console.error(`[Socket] Server unreachable (HTTP ${healthRes.status})`);
+                store.setConnection({ connecting: false });
+                store.addToast('error', t('socket.serverUnreachable'));
+                return false;
             }
+            const health = await healthRes.json();
+            console.log('[Socket] Server health:', health);
+        } catch (err) {
+            console.error('[Socket] Pre-flight failed:', (err as Error).message);
+            store.setConnection({ connecting: false });
+            store.addToast('error', t('socket.serverUnreachable'));
+            return false;
+        }
 
-            const wsUrl = serverUrl.replace(/^http/, 'ws').replace(/\/$/, '');
-
-            this.socket = io(wsUrl.replace(/^ws/, 'http'), {
+        return new Promise((resolve) => {
+            this.socket = io(connectUrl, {
                 transports: ['websocket', 'polling'],
-                timeout: 10000,
+                timeout: 20000,
                 reconnection: true,
                 reconnectionAttempts: this.maxReconnectAttempts,
                 reconnectionDelay: 2000,
@@ -72,7 +97,7 @@ class SocketService {
             });
 
             this.socket.on('connect_error', (err) => {
-                console.error('[Socket] Connection error:', err.message);
+                console.error(`[Socket] Connection error (attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}):`, err.message);
                 this.reconnectAttempts++;
                 if (this.reconnectAttempts >= this.maxReconnectAttempts) {
                     const s = useStore.getState();
@@ -196,10 +221,11 @@ class SocketService {
             setTimeout(() => {
                 const s = useStore.getState();
                 if (s.connection.connecting) {
+                    console.warn('[Socket] Connection timeout after 30s');
                     s.setConnection({ connecting: false });
                     resolve(false);
                 }
-            }, 15000);
+            }, 30000);
         });
     }
 
