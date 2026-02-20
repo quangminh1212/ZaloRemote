@@ -30,30 +30,31 @@ class SocketService {
         else if (connectUrl.startsWith('ws://')) connectUrl = connectUrl.replace('ws://', 'http://');
         console.log('[Socket] Connecting to:', connectUrl);
 
-        // Pre-flight check: verify server is reachable before attempting Socket.IO
+        // Pre-flight check: verify server is reachable (soft check — don't block Socket.IO)
+        let serverReachable = true;
         try {
             const healthUrl = `${connectUrl}/api/health`;
             console.log('[Socket] Pre-flight check:', healthUrl);
-            const healthRes = await fetch(healthUrl, { signal: AbortSignal.timeout(8000) });
-            if (!healthRes.ok) {
-                console.error(`[Socket] Server unreachable (HTTP ${healthRes.status})`);
-                store.setConnection({ connecting: false });
-                store.addToast('error', t('socket.serverUnreachable'));
-                return false;
+            const healthRes = await fetch(healthUrl, {
+                signal: AbortSignal.timeout(8000),
+                mode: 'cors',
+            });
+            if (healthRes.ok) {
+                const health = await healthRes.json();
+                console.log('[Socket] Server health:', health);
+            } else {
+                console.warn(`[Socket] Health check HTTP ${healthRes.status}, trying Socket.IO anyway...`);
+                serverReachable = false;
             }
-            const health = await healthRes.json();
-            console.log('[Socket] Server health:', health);
         } catch (err) {
-            console.error('[Socket] Pre-flight failed:', (err as Error).message);
-            store.setConnection({ connecting: false });
-            store.addToast('error', t('socket.serverUnreachable'));
-            return false;
+            console.warn('[Socket] Pre-flight failed (CORS or network):', (err as Error).message, '— trying Socket.IO anyway...');
+            serverReachable = false;
         }
 
         return new Promise((resolve) => {
             this.socket = io(connectUrl, {
                 transports: ['websocket', 'polling'],
-                timeout: 20000,
+                timeout: serverReachable ? 20000 : 30000,
                 reconnection: true,
                 reconnectionAttempts: this.maxReconnectAttempts,
                 reconnectionDelay: 2000,

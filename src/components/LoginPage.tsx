@@ -317,7 +317,7 @@ export default function LoginPage() {
                         <p className="split-form-subtitle">{t('login.clientRoleDesc')}</p>
                         <div className="login-form">
                             <div className="form-group">
-                                <label>{t('setup.serverUrl') || 'Link chia sẻ'}</label>
+                                <label>{t('setup.shareLink')}</label>
                                 <div className="input-with-icon">
                                     <Link2 size={18} />
                                     <input type="text" placeholder="https://xxx.trycloudflare.com" value={serverUrl} onChange={(e) => setServerUrl(e.target.value)} onKeyDown={handleKeyDown} />
