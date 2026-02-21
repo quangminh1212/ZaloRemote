@@ -259,6 +259,7 @@ class SocketService {
         deltaY?: number;
         width?: number;
         height?: number;
+        imageData?: string;
     }) {
         if (!this.socket?.connected) return;
         this.socket.emit('action', action);

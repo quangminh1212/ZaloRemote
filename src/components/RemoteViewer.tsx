@@ -187,6 +187,9 @@ export default function RemoteViewer() {
         const modifierOnly = ['Control', 'Shift', 'Alt', 'Meta', 'AltGraph', 'CapsLock', 'NumLock', 'ScrollLock'];
         if (modifierOnly.includes(e.key)) return;
 
+        // Let Ctrl+V / Cmd+V fall through to onPaste handler
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') return;
+
         // Build modifier prefix
         const modifiers: string[] = [];
         if (e.ctrlKey || e.metaKey) modifiers.push('Control');
@@ -208,6 +211,34 @@ export default function RemoteViewer() {
         }
         // Regular characters (a-z, 0-9, Vietnamese) are handled by onInput/compositionEnd
         // Do NOT preventDefault for regular characters - let the textarea capture them
+    }, []);
+
+    // Paste handler - intercept Ctrl+V to read clipboard and send content to server
+    const handlePaste = useCallback((e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+        e.preventDefault();
+        const clipboardData = e.clipboardData;
+        if (!clipboardData) return;
+
+        // Check for image first
+        const imageItem = Array.from(clipboardData.items).find(item => item.type.startsWith('image/'));
+        if (imageItem) {
+            const blob = imageItem.getAsFile();
+            if (blob) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64 = reader.result as string;
+                    socketService.sendAction({ type: 'paste-image', imageData: base64 });
+                };
+                reader.readAsDataURL(blob);
+            }
+            return;
+        }
+
+        // Text paste
+        const text = clipboardData.getData('text/plain');
+        if (text) {
+            socketService.sendAction({ type: 'type', text });
+        }
     }, []);
 
     // IME composition start - Vietnamese typing begins
@@ -488,6 +519,7 @@ export default function RemoteViewer() {
                     onCompositionStart={handleCompositionStart}
                     onCompositionEnd={handleCompositionEnd}
                     onInput={handleInput}
+                    onPaste={handlePaste}
                     onBlur={focusInput}
                     aria-label="Remote keyboard input"
                 />
