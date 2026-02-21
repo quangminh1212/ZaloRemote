@@ -9,6 +9,7 @@ class SocketService {
     private currentRole: string = 'client';
     private currentAccessCode: string = '';
     private currentPassword: string = '';
+    private fileRequestCallback: ((data: { multiple: boolean }) => void) | null = null;
 
     async connect(serverUrl: string, role: string = 'client', partnerId?: string, password?: string): Promise<boolean> {
         this.currentRole = role;
@@ -235,6 +236,24 @@ class SocketService {
                 useStore.getState().setTunnelUrl(data.url);
             });
 
+            // File request from server (Zalo opened file chooser dialog)
+            this.socket.on('file:request', (data: { multiple: boolean }) => {
+                console.log('[Socket] Server requests file upload, multiple:', data.multiple);
+                if (this.fileRequestCallback) {
+                    this.fileRequestCallback(data);
+                }
+            });
+
+            // File upload result
+            this.socket.on('file:upload-result', (data: { success: boolean; error?: string }) => {
+                const s = useStore.getState();
+                if (data.success) {
+                    s.addToast('success', 'File đã gửi thành công');
+                } else {
+                    s.addToast('error', `Gửi file thất bại: ${data.error || 'Unknown'}`);
+                }
+            });
+
             // Timeout
             setTimeout(() => {
                 const s = useStore.getState();
@@ -288,6 +307,21 @@ class SocketService {
     regenerateCode() {
         if (!this.socket?.connected) return;
         this.socket.emit('access-code:regenerate');
+    }
+
+    // Send files to server (resolves pending file chooser)
+    sendFiles(files: Array<{ name: string; data: string; type: string }>) {
+        if (!this.socket?.connected) return;
+        this.socket.emit('file:upload', { files });
+    }
+
+    // Register callback for file request from server
+    onFileRequest(callback: (data: { multiple: boolean }) => void) {
+        this.fileRequestCallback = callback;
+    }
+
+    offFileRequest() {
+        this.fileRequestCallback = null;
     }
 
     disconnect() {

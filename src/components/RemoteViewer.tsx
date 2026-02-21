@@ -39,11 +39,13 @@ export default function RemoteViewer() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const hiddenInputRef = useRef<HTMLTextAreaElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const isComposingRef = useRef(false);
     const [scale, setScale] = useState(1);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [showSharePanel, setShowSharePanel] = useState(false);
     const [copiedField, setCopiedField] = useState<string | null>(null);
+    const [filePickerMultiple, setFilePickerMultiple] = useState(false);
 
     const copyToClipboard = (text: string, field: string) => {
         navigator.clipboard.writeText(text);
@@ -117,6 +119,47 @@ export default function RemoteViewer() {
             socketService.requestFrame();
         }
     }, [currentFrame]);
+
+    // File request handler - server asks client to pick files locally
+    const handleFileSelected = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        const fileDataPromises = Array.from(files).map(file => {
+            return new Promise<{ name: string; data: string; type: string }>((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    resolve({
+                        name: file.name,
+                        data: reader.result as string,
+                        type: file.type,
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        Promise.all(fileDataPromises).then((fileData) => {
+            socketService.sendFiles(fileData);
+        });
+
+        // Reset input so same file can be selected again
+        e.target.value = '';
+    }, []);
+
+    useEffect(() => {
+        socketService.onFileRequest((data) => {
+            setFilePickerMultiple(data.multiple);
+            // Small delay to ensure state update before click
+            setTimeout(() => {
+                fileInputRef.current?.click();
+            }, 100);
+        });
+
+        return () => {
+            socketService.offFileRequest();
+        };
+    }, []);
 
     // Coordinate conversion (client-side math)
     const getServerCoords = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -522,6 +565,15 @@ export default function RemoteViewer() {
                     onPaste={handlePaste}
                     onBlur={focusInput}
                     aria-label="Remote keyboard input"
+                />
+                {/* Hidden file input for server file chooser intercept */}
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple={filePickerMultiple}
+                    className="remote-hidden-input"
+                    onChange={handleFileSelected}
+                    aria-label="File upload for remote Zalo"
                 />
             </div>
         </div>
