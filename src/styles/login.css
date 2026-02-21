@@ -1162,42 +1162,42 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg-app);
+  background: transparent;
   overflow: hidden;
 }
 
 .settings-header {
-  height: var(--header-h);
-  padding: 0 var(--sp-20);
+  padding: var(--sp-16) var(--sp-20);
   display: flex;
   align-items: center;
   gap: var(--sp-12);
-  background: var(--bg-panel);
-  border-bottom: 1px solid var(--border-light);
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
 }
 
 .settings-header h2 {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   flex: 1;
+  color: var(--text-primary);
 }
 
 .settings-content {
   flex: 1;
   overflow-y: auto;
-  padding: var(--sp-24) var(--sp-28);
+  padding: var(--sp-16) var(--sp-20);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-24);
+  gap: var(--sp-16);
   max-width: 100%;
   /* Custom scrollbar */
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
 }
 
 .settings-content::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .settings-content::-webkit-scrollbar-track {
@@ -1205,53 +1205,54 @@
 }
 
 .settings-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 3px;
 }
 
 .settings-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .settings-section h3 {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 600;
   color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: var(--sp-10);
+  letter-spacing: 1.2px;
+  margin-bottom: var(--sp-8);
+  padding-left: var(--sp-4);
   display: flex;
   align-items: center;
   gap: var(--sp-6);
 }
 
 .settings-section h3 svg {
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .settings-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--r-12);
   padding: 0;
-  overflow: visible;
+  overflow: hidden;
   position: relative;
 }
 
 .settings-card+.settings-card {
-  margin-top: var(--sp-8);
+  margin-top: var(--sp-6);
 }
 
 .setting-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--sp-12) var(--sp-16);
-  min-height: 44px;
+  padding: var(--sp-10) var(--sp-14);
+  min-height: 40px;
 }
 
 .setting-row+.setting-row {
-  border-top: 1px solid var(--border-light);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .setting-label {
@@ -1263,7 +1264,7 @@
 }
 
 .setting-value {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
   color: var(--text-primary);
   font-family: 'JetBrains Mono', 'Fira Code', monospace;
@@ -1282,23 +1283,25 @@
 }
 
 .settings-btn {
-  width: calc(100% - var(--sp-32));
-  margin: var(--sp-10) var(--sp-16);
-  height: 38px;
+  width: calc(100% - var(--sp-24));
+  margin: var(--sp-8) var(--sp-12);
+  height: 36px;
   border-radius: var(--r-8);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--sp-6);
-  background: var(--bg-hover);
-  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   transition: all 0.15s ease;
 }
 
 .settings-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
 }
 
 .settings-btn.warning {
