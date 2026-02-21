@@ -215,8 +215,8 @@ export default function LoginPage() {
 
     const formatIdInput = (val: string) => {
         const digits = val.replace(/\D/g, '').slice(0, 9);
-        if (digits.length > 6) return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-        if (digits.length > 3) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+        if (digits.length > 6) return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+        if (digits.length > 3) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
         return digits;
     };
 
@@ -327,7 +327,7 @@ export default function LoginPage() {
                                 <label>{t('setup.partnerId')}</label>
                                 <div className="input-with-icon">
                                     <KeyRound size={18} />
-                                    <input type="text" placeholder="123-456-789" value={partnerId} onChange={(e) => setPartnerId(formatIdInput(e.target.value))} onKeyDown={handleKeyDown} maxLength={11} className="code-input" />
+                                    <input type="text" placeholder="123 456 789" value={partnerId} onChange={(e) => setPartnerId(formatIdInput(e.target.value))} onKeyDown={handleKeyDown} maxLength={11} className="code-input" />
                                 </div>
                             </div>
                             <div className="form-group">

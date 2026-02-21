@@ -330,7 +330,7 @@ export default function RemoteViewer() {
                                 onClick={() => accessCode && copyToClipboard(accessCode, 'id')}
                                 title="Click to copy"
                             >
-                                {copiedField === 'id' ? t('dashboard.copied') : (accessCode ? accessCode.replace(/(\d{3})(\d{3})(\d{3})/, '$1-$2-$3') : '---------')}
+                                {copiedField === 'id' ? t('dashboard.copied') : (accessCode ? accessCode.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3') : '— — —')}
                             </span>
                         </div>
                         <div className="share-code-section">
@@ -349,7 +349,7 @@ export default function RemoteViewer() {
                             <span
                                 className={`share-url clickable ${copiedField === 'link' ? 'copied' : ''}`}
                                 onClick={() => {
-                                    const formattedId = accessCode ? accessCode.replace(/(\d{3})(\d{3})(\d{3})/, '$1-$2-$3') : '';
+                                    const formattedId = accessCode ? accessCode.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3') : '';
                                     const serverAddr = tunnelUrl || window.location.origin;
                                     const text = `${t('dashboard.shareLink')}: ${serverAddr}\n${t('setup.partnerId')}: ${formattedId}\n${t('setup.partnerPassword')}: ${accessPassword || ''}`;
                                     copyToClipboard(text, 'link');
