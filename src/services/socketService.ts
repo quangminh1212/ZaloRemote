@@ -30,7 +30,7 @@ class SocketService {
         else if (connectUrl.startsWith('ws://')) connectUrl = connectUrl.replace('ws://', 'http://');
         console.log('[Socket] Connecting to:', connectUrl);
 
-        // Pre-flight check: verify server is reachable (soft check — don't block Socket.IO)
+        // Pre-flight check: verify server is reachable
         let serverReachable = true;
         try {
             const healthUrl = `${connectUrl}/api/health`;
@@ -43,15 +43,25 @@ class SocketService {
                 const health = await healthRes.json();
                 console.log('[Socket] Server health:', health);
             } else {
-                console.warn(`[Socket] Health check HTTP ${healthRes.status}, trying Socket.IO anyway...`);
+                console.warn(`[Socket] Health check HTTP ${healthRes.status}`);
                 serverReachable = false;
             }
         } catch (err) {
-            console.warn('[Socket] Pre-flight failed (CORS or network):', (err as Error).message, '— trying Socket.IO anyway...');
+            console.warn('[Socket] Pre-flight failed:', (err as Error).message);
             serverReachable = false;
         }
 
+        // If pre-flight failed, show warning but still try Socket.IO
+        if (!serverReachable) {
+            store.addToast('info', t('socket.serverUnreachable'));
+        }
+
         return new Promise((resolve) => {
+            let resolved = false;
+            const safeResolve = (value: boolean) => {
+                if (!resolved) { resolved = true; resolve(value); }
+            };
+
             this.socket = io(connectUrl, {
                 transports: ['websocket', 'polling'],
                 timeout: serverReachable ? 20000 : 30000,
@@ -64,9 +74,6 @@ class SocketService {
             this.socket.on('connect', () => {
                 console.log('[Socket] Connected to server');
                 this.reconnectAttempts = 0;
-                const s = useStore.getState();
-                s.setConnection({ connected: true, connecting: false });
-                s.addToast('success', t('socket.connected'));
 
                 // Register with role and access code
                 const registration: Record<string, unknown> = {
@@ -94,7 +101,14 @@ class SocketService {
 
                 this.socket!.emit('client:register', registration);
 
-                resolve(true);
+                // Server role: resolve immediately (no auth needed)
+                if (this.currentRole === 'server') {
+                    const s = useStore.getState();
+                    s.setConnection({ connected: true, connecting: false });
+                    s.addToast('success', t('socket.connected'));
+                    safeResolve(true);
+                }
+                // Client role: wait for client:registered or auth:failed
             });
 
             this.socket.on('connect_error', (err) => {
@@ -103,8 +117,7 @@ class SocketService {
                 if (this.reconnectAttempts >= this.maxReconnectAttempts) {
                     const s = useStore.getState();
                     s.setConnection({ connected: false, connecting: false });
-                    s.addToast('error', t('socket.connectFailed'));
-                    resolve(false);
+                    safeResolve(false);
                 }
             });
 
@@ -118,9 +131,14 @@ class SocketService {
                 }
             });
 
-            // Client registration confirmed
+            // Client registration confirmed — NOW we can resolve true
             this.socket.on('client:registered', (data) => {
                 console.log('[Socket] Registered as:', data.name);
+                const s = useStore.getState();
+                s.setConnection({ connected: true, connecting: false });
+                s.addToast('success', t('socket.connected'));
+                safeResolve(true);
+
                 // Actively request frame after registration is confirmed
                 this.socket?.emit('frame:request');
                 // Retry if no frame received within 2s (handles screencast restart timing)
@@ -185,13 +203,12 @@ class SocketService {
                     ? t('socket.invalidCode')
                     : t('socket.authFailed'));
                 s.setConnection({ connected: false, connecting: false });
-                s.setView('setup');
                 if (this.socket) {
                     this.socket.removeAllListeners();
                     this.socket.disconnect();
                     this.socket = null;
                 }
-                resolve(false);
+                safeResolve(false);
             });
 
             // Access code updates (server role)
@@ -224,7 +241,7 @@ class SocketService {
                 if (s.connection.connecting) {
                     console.warn('[Socket] Connection timeout after 30s');
                     s.setConnection({ connecting: false });
-                    resolve(false);
+                    safeResolve(false);
                 }
             }, 30000);
         });
