@@ -9,6 +9,9 @@ type LoginTab = 'hub' | 'remote';
 // Detect Electron environment (hub.bat)
 const isElectron = !!(window as any).api;
 
+// Fallback URL if GitHub API fails
+const FALLBACK_DOWNLOAD_URL = 'https://github.com/quangminh1212/release/releases';
+
 export default function LoginPage() {
     const { setRole, setUser, setView, setConnection, addToast, setPartnerCredentials } = useStore();
     const { t, locale, setLocale } = useTranslation();
@@ -20,6 +23,21 @@ export default function LoginPage() {
     const langRef = useRef<HTMLDivElement>(null);
     const [tunnelUrl, setTunnelUrl] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
+    const [downloadUrl, setDownloadUrl] = useState(FALLBACK_DOWNLOAD_URL);
+
+    // Fetch latest ZaloHub release URL from GitHub API
+    useEffect(() => {
+        fetch('https://api.github.com/repos/quangminh1212/release/releases?per_page=50')
+            .then(r => r.json())
+            .then((releases: any[]) => {
+                if (!Array.isArray(releases)) return;
+                const latest = releases.find((r: any) =>
+                    r.tag_name?.startsWith('zalohub-') && !r.draft && !r.prerelease
+                );
+                if (latest?.html_url) setDownloadUrl(latest.html_url);
+            })
+            .catch(() => { /* keep fallback */ });
+    }, []);
 
     // Fetch tunnel URL periodically (Electron only)
     useEffect(() => {
@@ -281,7 +299,7 @@ export default function LoginPage() {
         return (
             <div className="login-page login-split">
                 <div className="login-top-actions">
-                    <a href="https://github.com/quangminh1212/release/releases/tag/zalohub-v1.0.2" target="_blank" rel="noopener noreferrer" className="top-download-btn" title={t('login.downloadBtn')}>
+                    <a href={downloadUrl} target="_blank" rel="noopener noreferrer" className="top-download-btn" title={t('login.downloadBtn')}>
                         <Download size={14} /><span>{t('login.downloadBtn')}</span>
                     </a>
                     {toolbarGroup}
@@ -298,7 +316,7 @@ export default function LoginPage() {
                         <p className="login-description">{t('login.description')}</p>
 
                         <div className="guide-content">
-                            <div className="guide-step"><div className="step-number">1</div><div className="step-text"><strong>Tải &amp; chạy ZaloHub</strong><p>Tải <a href="https://github.com/quangminh1212/release/releases/tag/zalohub-v1.0.2" target="_blank" rel="noopener noreferrer">ZaloHub</a> về PC, chạy và đăng nhập Zalo</p></div></div>
+                            <div className="guide-step"><div className="step-number">1</div><div className="step-text"><strong>Tải &amp; chạy ZaloHub</strong><p>Tải <a href={downloadUrl} target="_blank" rel="noopener noreferrer">ZaloHub</a> về PC, chạy và đăng nhập Zalo</p></div></div>
                             <div className="guide-step"><div className="step-number">2</div><div className="step-text"><strong>Lấy thông tin kết nối</strong><p>Nhấn <strong>Chia sẻ</strong> trên ZaloHub để lấy <strong>Link</strong>, <strong>ID</strong> và <strong>mật khẩu</strong></p></div></div>
                             <div className="guide-step"><div className="step-number">3</div><div className="step-text"><strong>Kết nối</strong><p>Dán link, nhập ID và mật khẩu vào form bên phải, nhấn <strong>Kết nối</strong></p></div></div>
                         </div>
