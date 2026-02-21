@@ -12,8 +12,9 @@ export default function SettingsView() {
     const allLocales = Object.keys(LOCALE_META) as Locale[];
     const [langOpen, setLangOpen] = useState(false);
 
-    const handleRestart = () => {
-        socketService.restartBrowser();
+    const handleRefreshPage = () => {
+        socketService.sendAction({ type: 'keydown', key: 'F5' });
+        addToast('info', 'Đang làm mới trang...');
     };
 
     const handleReconnect = async () => {
@@ -134,9 +135,9 @@ export default function SettingsView() {
                                     : 'N/A'}
                             </span>
                         </div>
-                        <button className="settings-btn warning" onClick={handleRestart}>
+                        <button className="settings-btn" onClick={handleRefreshPage}>
                             <RefreshCw size={16} />
-                            {t('settings.restartBrowser')}
+                            {t('remote.refresh')}
                         </button>
                     </div>
                 </div>
