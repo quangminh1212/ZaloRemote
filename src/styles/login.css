@@ -1162,17 +1162,16 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: transparent;
+  background: var(--bg-panel);
   overflow: hidden;
 }
 
 .settings-header {
-  padding: var(--sp-16) var(--sp-20);
+  padding: var(--sp-16) var(--sp-16);
   display: flex;
   align-items: center;
   gap: var(--sp-12);
-  background: transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border-light);
   flex-shrink: 0;
 }
 
@@ -1186,14 +1185,13 @@
 .settings-content {
   flex: 1;
   overflow-y: auto;
-  padding: var(--sp-10) var(--sp-10);
+  padding: var(--sp-12) var(--sp-12);
   display: flex;
   flex-direction: column;
   gap: var(--sp-16);
   max-width: 100%;
-  /* Custom scrollbar */
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  scrollbar-color: var(--border-light) transparent;
 }
 
 .settings-content::-webkit-scrollbar {
@@ -1205,12 +1203,12 @@
 }
 
 .settings-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--border-light);
   border-radius: 3px;
 }
 
 .settings-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: var(--border-default);
 }
 
 .settings-section h3 {
@@ -1231,8 +1229,8 @@
 }
 
 .settings-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   border-radius: var(--r-12);
   padding: 0;
   overflow: hidden;
@@ -1247,12 +1245,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--sp-10) var(--sp-14);
-  min-height: 40px;
+  padding: var(--sp-10) var(--sp-16);
+  min-height: 42px;
 }
 
 .setting-row+.setting-row {
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-top: 1px solid var(--border-light);
 }
 
 .setting-label {
@@ -1293,14 +1291,14 @@
   align-items: center;
   justify-content: center;
   gap: var(--sp-6);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-hover);
   color: var(--text-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-light);
   transition: all 0.15s ease;
 }
 
 .settings-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-active);
   color: var(--text-primary);
 }
 
