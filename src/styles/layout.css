@@ -398,6 +398,30 @@
   box-shadow: 0 0 0 2px var(--zalo-blue);
 }
 
+/* Hidden textarea for IME keyboard input (Vietnamese, CJK, etc.) */
+.remote-hidden-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  z-index: -1;
+  pointer-events: none;
+  font-size: 16px; /* Prevents iOS zoom on focus */
+  /* Allow focus programmatically but invisible */
+}
+
+.remote-hidden-input:focus {
+  pointer-events: auto;
+}
+
 /* ============================================
    Client Panel (Side)
    ============================================ */

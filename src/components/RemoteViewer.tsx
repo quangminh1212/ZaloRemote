@@ -38,6 +38,8 @@ export default function RemoteViewer() {
 
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const hiddenInputRef = useRef<HTMLTextAreaElement>(null);
+    const isComposingRef = useRef(false);
     const [scale, setScale] = useState(1);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [showSharePanel, setShowSharePanel] = useState(false);
@@ -48,6 +50,11 @@ export default function RemoteViewer() {
         setCopiedField(field);
         setTimeout(() => setCopiedField(null), 1500);
     };
+
+    // Focus hidden textarea for keyboard/IME input capture
+    const focusInput = useCallback(() => {
+        hiddenInputRef.current?.focus();
+    }, []);
 
     // Draw frame onto canvas - client does all image decoding
     useEffect(() => {
@@ -124,7 +131,7 @@ export default function RemoteViewer() {
         };
     }, [scale, serverStatus.viewport]);
 
-    // Click - instant, no throttle
+    // Click - instant, no throttle. Also focus hidden input for keyboard capture.
     const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
         const coords = getServerCoords(e);
         if (!coords) return;
@@ -133,13 +140,16 @@ export default function RemoteViewer() {
             ...coords,
             button: e.button === 2 ? 'right' : 'left',
         });
-    }, [getServerCoords]);
+        // Focus hidden textarea so keyboard/IME input is captured
+        focusInput();
+    }, [getServerCoords, focusInput]);
 
     const handleDoubleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
         const coords = getServerCoords(e);
         if (!coords) return;
         socketService.sendAction({ type: 'dblclick', ...coords });
-    }, [getServerCoords]);
+        focusInput();
+    }, [getServerCoords, focusInput]);
 
     // Scroll - throttled at 100ms (client does the heavy lifting of debouncing)
     const rawHandleWheel = useCallback((e: React.WheelEvent<HTMLCanvasElement>) => {
@@ -154,11 +164,24 @@ export default function RemoteViewer() {
     }, [getServerCoords]);
     const handleWheel = useThrottle(rawHandleWheel, 100);
 
-    // Keyboard handler - comprehensive key mapping
-    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLCanvasElement>) => {
-        // Skip IME composition events (handled by composition handler)
-        if (e.nativeEvent.isComposing) return;
-        e.preventDefault();
+    // Puppeteer-compatible key names (shared between handlers)
+    const puppeteerKeyMap: Record<string, string> = {
+        'Enter': 'Enter', 'Backspace': 'Backspace', 'Delete': 'Delete',
+        'Tab': 'Tab', 'Escape': 'Escape', ' ': 'Space',
+        'ArrowUp': 'ArrowUp', 'ArrowDown': 'ArrowDown',
+        'ArrowLeft': 'ArrowLeft', 'ArrowRight': 'ArrowRight',
+        'Home': 'Home', 'End': 'End',
+        'PageUp': 'PageUp', 'PageDown': 'PageDown',
+        'Insert': 'Insert',
+        'F1': 'F1', 'F2': 'F2', 'F3': 'F3', 'F4': 'F4',
+        'F5': 'F5', 'F6': 'F6', 'F7': 'F7', 'F8': 'F8',
+        'F9': 'F9', 'F10': 'F10', 'F11': 'F11', 'F12': 'F12',
+    };
+
+    // Keyboard handler on hidden textarea - handles special keys & shortcuts
+    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        // Skip during IME composition (Vietnamese typing in progress)
+        if (e.nativeEvent.isComposing || isComposingRef.current) return;
 
         // Ignore modifier-only keys (prevent "Control+Control" etc.)
         const modifierOnly = ['Control', 'Shift', 'Alt', 'Meta', 'AltGraph', 'CapsLock', 'NumLock', 'ScrollLock'];
@@ -170,40 +193,50 @@ export default function RemoteViewer() {
         if (e.altKey) modifiers.push('Alt');
         if (e.shiftKey && e.key.length > 1) modifiers.push('Shift'); // Only for special keys
 
-        // Puppeteer-compatible key names
-        const puppeteerKeyMap: Record<string, string> = {
-            'Enter': 'Enter', 'Backspace': 'Backspace', 'Delete': 'Delete',
-            'Tab': 'Tab', 'Escape': 'Escape', ' ': 'Space',
-            'ArrowUp': 'ArrowUp', 'ArrowDown': 'ArrowDown',
-            'ArrowLeft': 'ArrowLeft', 'ArrowRight': 'ArrowRight',
-            'Home': 'Home', 'End': 'End',
-            'PageUp': 'PageUp', 'PageDown': 'PageDown',
-            'Insert': 'Insert',
-            'F1': 'F1', 'F2': 'F2', 'F3': 'F3', 'F4': 'F4',
-            'F5': 'F5', 'F6': 'F6', 'F7': 'F7', 'F8': 'F8',
-            'F9': 'F9', 'F10': 'F10', 'F11': 'F11', 'F12': 'F12',
-        };
-
         const mappedKey = puppeteerKeyMap[e.key];
 
         if (modifiers.length > 0) {
+            e.preventDefault();
             // Modifier combo: Ctrl+A, Ctrl+C, Alt+F4, etc.
             const baseKey = mappedKey || (e.key.length === 1 ? e.key.toLowerCase() : e.key);
             const combo = [...modifiers, baseKey].join('+');
             socketService.sendAction({ type: 'keydown', key: combo });
         } else if (mappedKey) {
+            e.preventDefault();
             // Special key without modifier
             socketService.sendAction({ type: 'keydown', key: mappedKey });
-        } else if (e.key.length === 1) {
-            // Regular character (a-z, 0-9, symbols)
-            socketService.sendAction({ type: 'type', text: e.key });
+        }
+        // Regular characters (a-z, 0-9, Vietnamese) are handled by onInput/compositionEnd
+        // Do NOT preventDefault for regular characters - let the textarea capture them
+    }, []);
+
+    // IME composition start - Vietnamese typing begins
+    const handleCompositionStart = useCallback(() => {
+        isComposingRef.current = true;
+    }, []);
+
+    // IME composition end - Vietnamese character fully composed (e.g. "không" from "khoong")
+    const handleCompositionEnd = useCallback((e: React.CompositionEvent<HTMLTextAreaElement>) => {
+        isComposingRef.current = false;
+        if (e.data) {
+            socketService.sendAction({ type: 'type', text: e.data });
+        }
+        // Clear the textarea after sending
+        if (hiddenInputRef.current) {
+            hiddenInputRef.current.value = '';
         }
     }, []);
 
-    // Vietnamese IME composition handler
-    const handleCompositionEnd = useCallback((e: React.CompositionEvent<HTMLCanvasElement>) => {
-        if (e.data) {
-            socketService.sendAction({ type: 'type', text: e.data });
+    // Input handler - captures regular (non-IME) character input
+    const handleInput = useCallback((e: React.FormEvent<HTMLTextAreaElement>) => {
+        // Skip during IME composition
+        if (isComposingRef.current) return;
+
+        const textarea = e.currentTarget;
+        const text = textarea.value;
+        if (text) {
+            socketService.sendAction({ type: 'type', text });
+            textarea.value = '';
         }
     }, []);
 
@@ -437,13 +470,26 @@ export default function RemoteViewer() {
                 <canvas
                     ref={canvasRef}
                     className="remote-canvas"
-                    tabIndex={0}
+                    tabIndex={-1}
                     onClick={handleClick}
                     onDoubleClick={handleDoubleClick}
                     onWheel={handleWheel}
-                    onKeyDown={handleKeyDown}
-                    onCompositionEnd={handleCompositionEnd}
                     onContextMenu={handleContextMenu}
+                />
+                {/* Hidden textarea for keyboard/IME input (Vietnamese, CJK, etc.) */}
+                <textarea
+                    ref={hiddenInputRef}
+                    className="remote-hidden-input"
+                    tabIndex={0}
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    onKeyDown={handleKeyDown}
+                    onCompositionStart={handleCompositionStart}
+                    onCompositionEnd={handleCompositionEnd}
+                    onInput={handleInput}
+                    onBlur={focusInput}
+                    aria-label="Remote keyboard input"
                 />
             </div>
         </div>
