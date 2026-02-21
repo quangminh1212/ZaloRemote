@@ -33,7 +33,7 @@
   animation: slideUp 0.2s ease;
   display: flex;
   flex-direction: column;
-  padding: var(--sp-4);
+  padding: var(--sp-16);
 }
 
 /* ============================================
